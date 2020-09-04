@@ -9,10 +9,30 @@ module.exports = function ControlServiceFactory(
 ) {
   var controlService = {
   }
+// 新添加部分
+  var deviceControlArray = new Array()
+ 
+  if (deviceControlArray.length == 0)
+  {
+    var devices = "";
+      devices = oboe('/api/v1/devices')
+ 
+      devices.node('devices[*]', function(device) {
+        if (device.present)  //仅将在线的设备加入Array
+        {
+          deviceControlArray.push(device.channel)
+        }
+      })
+    }
+
 
   function ControlService(target, channel) {
     function sendOneWay(action, data) {
-      socket.emit(action, channel, data)
+      
+      deviceControlArray.forEach(function(channel)
+      {
+        socket.emit(action, channel, data)
+      })
     }
 
     function sendTwoWay(action, data) {
